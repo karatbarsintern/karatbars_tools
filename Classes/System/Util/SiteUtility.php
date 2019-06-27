@@ -1,10 +1,10 @@
 <?php
-namespace KaratbarsTools\System\Util;
+namespace Karatbars\KaratbarsTools\System\Util;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Timo Hund <timo.hund@dkd.de>
+ *  (c) 2019 Oliver Kurzer <oliver.kurzer@karatbars.com>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is

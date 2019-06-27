@@ -1,11 +1,11 @@
 <?php
 
-namespace KaratbarsTools\System\Logging;
+namespace Karatbars\KaratbarsTools\System\Logging;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2010-2016 Timo Hund <timo.hund@dkd.de
+ *  (c) 2019 Oliver Kurzer <oliver.kurzer@karatbars.com>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -34,7 +34,7 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  * The DebugWriter is used to write the devLog messages to the output of the page, or to the TYPO3 console in the
  * backend to provide a simple and lightweigt debugging possibility.
  *
- * @author Timo Hund <timo.hund@dkd.de>
+ * @author Oliver Kurzer <oliver.kurzer@karatbars.com>
  */
 class DebugWriter
 {
