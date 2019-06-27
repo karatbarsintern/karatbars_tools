@@ -22,6 +22,9 @@
     "typo3/cms-extbase": "^8.7.10"
   },
   "autoload": {
+    "classmap": [
+      "Resources/Private/Php/"
+    ],
     "psr-4": {
       "KbToolsForTypo3\\KaratbarsTools\\": "Classes/"
     }
@@ -33,7 +36,13 @@
   "scripts": {
     "post-autoload-dump": [
       "mkdir -p .Build/Web/typo3conf/ext/",
-      "[ -L .Build/Web/typo3conf/ext/karatbars_tools ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/karatbars_tools"
+      "[ -L .Build/Web/typo3conf/ext/solr ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/karatbars_tools"
+    ],
+    "extension-create-libs": [
+      "@composer install -d Resources/Private/Php/ComposerLibraries"
+    ],
+    "extension-build": [
+      "@extension-create-libs"
     ]
   },
   "extra": {
