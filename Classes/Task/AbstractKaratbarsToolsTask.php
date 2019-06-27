@@ -38,57 +38,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  */
 abstract class AbstractKaratbarsToolsTask extends AbstractTask {
     /**
-     * The site this task is supposed to initialize the index queue for.
-     *
-     * @var Site
-     */
-    protected $site;
-
-    /**
-     * The rootPageId of the site that should be reIndexed
-     *
-     * @var integer
-     */
-    protected $rootPageId;
-
-    /**
-     * @return int
-     */
-    public function getRootPageId()
-    {
-        return $this->rootPageId;
-    }
-
-    /**
-     * @param int $rootPageId
-     */
-    public function setRootPageId($rootPageId)
-    {
-        $this->rootPageId = $rootPageId;
-    }
-
-    /**
-     * @return Site
-     */
-    public function getSite()
-    {
-        if (!is_null($this->site)) {
-            return $this->site;
-        }
-
-        try {
-            /** @var $siteRepository SiteRepository */
-            $siteRepository = GeneralUtility::makeInstance(SiteRepository::class);
-            $this->site = $siteRepository->getSiteByRootPageId($this->rootPageId);
-        } catch (\InvalidArgumentException $e) {
-            $logger = GeneralUtility::makeInstance(SolrLogManager::class, /** @scrutinizer ignore-type */ __CLASS__);
-            $logger->log(SolrLogManager::ERROR, 'Scheduler task tried to get invalid site');
-        }
-
-        return $this->site;
-    }
-
-    /**
      * @return array
      */
     public function __sleep()
