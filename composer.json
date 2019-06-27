@@ -22,12 +22,12 @@
     "typo3/cms-extbase": "^8.7.10"
   },
   "autoload": {
-    "psr-4": {
-      "Karatbars\\KaratbarsTools\\": "Classes/"
-    }
     "classmap": [
       "Resources/Private/Php/"
     ],
+    "psr-4": {
+      "Karatbars\\KaratbarsTools\\": "Classes/"
+    }
   },
   "config": {
     "vendor-dir": ".Build/vendor",
