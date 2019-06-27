@@ -9,15 +9,18 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'oliver.kurzer@karatbars.de',
     'state' => 'stable',
     'clearCacheOnLoad' => true,
-    'version' => '1.0.0',
+    'version' => '1.1.0',
     'constraints' => [
         'depends' => [
             'typo3' => '8.0.0-9.9.99'
         ]
     ],
     'autoload' => [
+        'classmap' => [
+            'Resources/Private/Php/'
+        ],
         'psr-4' => [
             'Karatbars\\KaratbarsTools\\' => 'Classes'
         ]
-    ],
+    ]
 ];
