@@ -26,7 +26,7 @@
       "Resources/Private/Php/"
     ],
     "psr-4": {
-      "KbToolsForTypo3\\KaratbarsTools\\": "Classes/"
+      "Karatbars\\KaratbarsTools\\": "Classes/"
     }
   },
   "config": {

@@ -1,7 +1,6 @@
 <?php
 
-namespace KaratbarsTools\System\Logging;
-
+namespace Karatbars\KaratbarsTools\System\Logging;
 /***************************************************************
  *  Copyright notice
  *
@@ -35,7 +34,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Thomas Hohn <tho@systime.dk>
  */
-class SolrLogManager
+class KaratbarsToolsLogManager
 {
     const WARNING = LogLevel::WARNING;
     const ERROR = LogLevel::ERROR;

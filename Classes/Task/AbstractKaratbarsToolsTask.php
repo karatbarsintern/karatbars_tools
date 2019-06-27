@@ -1,5 +1,5 @@
 <?php
-namespace KaratbarsTools\Task;
+namespace Karatbars\KaratbarsTools\Task;
 
 /***************************************************************
  *  Copyright notice
