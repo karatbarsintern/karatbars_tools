@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
- * Abstract scheduler task for solr scheduler tasks, contains the logic to
+ * Abstract scheduler task for karatbarstools scheduler tasks, contains the logic to
  * retrieve the site, avoids serialization of site, when scheduler task is saved.
  *
  * @package KaratbarsTools\Task

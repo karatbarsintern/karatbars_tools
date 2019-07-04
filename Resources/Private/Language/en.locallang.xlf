@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2015-12-23T10:36:54Z" product-name="karatbars_tools">
+	<file source-language="en" target-language="en" datatype="plaintext" original="messages" date="2015-12-23T10:36:54Z" product-name="karatbars_tools">
 		<header/>
 		<body>
             <trans-unit id="languages" xml:space="preserve" approved="yes">
                 <source>Languages</source>
-                <target>Sprachen</target>
+                <target>Languages</target>
             </trans-unit>
             <trans-unit id="lan-en-US" xml:space="preserve" approved="yes">
                 <source>English</source>
-                <target>Englisch</target>
+                <target>English</target>
             </trans-unit>
             <trans-unit id="lan-de-DE" xml:space="preserve" approved="yes">
                 <source>German</source>
-                <target>Deutsch</target>
+                <target>German</target>
             </trans-unit>
             <trans-unit id="phoneemaillistworker_title" xml:space="preserve" approved="yes">
                 <source>Phone &amp; E-Mail List Worker</source>
-                <target>Telefon &amp; E-Mail Listen Worker</target>
+                <target>Phone &amp; E-Mail List Worker</target>
             </trans-unit>
             <trans-unit id="phoneemaillistworker_description" xml:space="preserve" approved="yes">
                 <source>Works/Beautify on file fileadmin/Main/PhoneEmailList.csv if exists</source>
-                <target>Bearbeitet/Optimiert die Datei fileadmin/Main/PhoneEmailList.csv falls vorhanden</target>
+                <target>Works/Beautify on file fileadmin/Main/PhoneEmailList.csv if exists</target>
             </trans-unit>
 		</body>
 	</file>

@@ -1,0 +1,4 @@
+plugin.tx_karatbarstools {
+	# cat=karatbarstools: basic/10/enable; type=boolean; label=Enable/disable KaratbarsTools extension: EXT:karatbarstools should only be enabled for relevant sys_languages, to avoid unnecessary connections and overwritten contents.
+	enabled = 1
+}

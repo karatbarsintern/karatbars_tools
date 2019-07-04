@@ -1,0 +1,15 @@
+plugin.tx_karatbarstools {
+
+	enabled = {$plugin.tx_tx_karatbarstools.enabled}
+
+	enableDebugMode = 1
+
+	general {
+		dateFormat.date = d.m.Y H:i
+	}
+
+	logging {
+		exceptions = 1
+		debugOutput = 1
+	}
+}

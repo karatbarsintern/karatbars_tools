@@ -25,7 +25,7 @@ namespace Karatbars\KaratbarsTools\System\Logging;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use ApacheSolrForTypo3\Solr\Util;
+use Karatbars\KaratbarsTools\Util;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
@@ -40,7 +40,7 @@ class DebugWriter
 {
 
     /**
-     * When the feature is enabled with: plugin.tx_solr.logging.debugOutput the log writer uses the extbase
+     * When the feature is enabled with: plugin.tx_karatbarstools.logging.debugOutput the log writer uses the extbase
      * debug functionality in the frontend, or the console in the backend to display the devlog messages.
      *
      * @param int|string $level Log level. Value according to \TYPO3\CMS\Core\Log\LogLevel. Alternatively accepts a string.
@@ -49,16 +49,18 @@ class DebugWriter
      */
     public function write($level, $message, $data = [])
     {
+        echo "<br>TICK: " . __LINE__;
         $debugAllowedForIp = $this->getIsAllowedByDevIPMask();
         if (!$debugAllowedForIp) {
             return;
         }
-
+        echo "<br>TICK: " . __LINE__;
         $isDebugOutputEnabled = $this->getIsDebugOutputEnabled();
+        echo "<br>\$isDebugOutputEnabled: " . var_export($isDebugOutputEnabled,1);
         if (!$isDebugOutputEnabled) {
             return;
         }
-
+        echo "<br>TICK: " . __LINE__;
         $this->writeDebugMessage($level, $message, $data);
     }
 
@@ -77,7 +79,7 @@ class DebugWriter
      */
     protected function getIsDebugOutputEnabled()
     {
-        return Util::getSolrConfiguration()->getLoggingDebugOutput();
+        return Util::getKaratbarsToolsConfiguration()->getLoggingDebugOutput();
     }
 
     /**
@@ -87,10 +89,10 @@ class DebugWriter
      */
     protected function writeDebugMessage($level, $message, $data)
     {
-        $parameters = ['extKey' => 'solr', 'msg' => $message, 'level' => $level, 'data' => $data];
+        $parameters = ['extKey' => 'KaratbarsTools', 'msg' => $message, 'level' => $level, 'data' => $data];
         $message = isset($parameters['msg']) ? $parameters['msg'] : '';
         if (TYPO3_MODE === 'BE') {
-            DebugUtility::debug($parameters, $parameters['extKey'], 'DevLog ext:solr: ' . $message);
+            DebugUtility::debug($parameters, $parameters['extKey'], 'DevLog ext:karatbarstools: ' . $message);
         } else {
             echo $message . ':<br/>';
             DebuggerUtility::var_dump($parameters);

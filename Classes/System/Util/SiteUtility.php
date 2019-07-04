@@ -24,13 +24,13 @@ namespace Karatbars\KaratbarsTools\System\Util;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use ApacheSolrForTypo3\Solr\Util;
+use Karatbars\KaratbarsTools\Util;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * This class contains related functions for the new site management that was introduced with TYPO3 9.
  *
- * @package ApacheSolrForTypo3\Solr\System\Util
+ * @package Karatbars\KaratbarsTools\System\Util
  */
 class SiteUtility
 {
