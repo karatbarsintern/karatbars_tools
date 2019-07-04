@@ -24,7 +24,7 @@ namespace Karatbars\KaratbarsTools\System\Logging;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use ApacheSolrForTypo3\Solr\Util;
+use Karatbars\KaratbarsTools\Util;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -57,7 +57,7 @@ class KaratbarsToolsLogManager
     protected $className = '';
 
     /**
-     * SolrLogManager constructor.
+     * KaratbarsToolsLogManager constructor.
      *
      * @param string $className
      * @param DebugWriter $debugWriter
@@ -91,6 +91,9 @@ class KaratbarsToolsLogManager
      */
     public function log($level, $message, array $data = [])
     {
+
+        echo "LLLLLLLLLLLLOOOOOOOOOOOOOOOOOOGGGGGGGGGGGGGGGGGGGGGG";
+
         $this->getLogger()->log($level, $message, $data);
         $this->debugWriter->write($level, $message, $data);
     }
