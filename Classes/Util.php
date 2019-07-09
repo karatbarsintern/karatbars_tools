@@ -4,7 +4,7 @@ namespace Karatbars\KaratbarsTools;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2009-2015 Ingo Renner <ingo@typo3.org>
+ *  (c) 2019 Oliver Kurzer <oliver.kurzer@karatbars.com>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -24,26 +24,26 @@ namespace Karatbars\KaratbarsTools;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-#use ApacheSolrForTypo3\Solr\Domain\Site\SiteRepository;
-#use ApacheSolrForTypo3\Solr\System\Cache\TwoLevelCache;
-#use ApacheSolrForTypo3\Solr\System\Configuration\ConfigurationManager;
-#use ApacheSolrForTypo3\Solr\System\Configuration\ConfigurationPageResolver;
-#use ApacheSolrForTypo3\Solr\System\Configuration\ExtensionConfiguration;
-#use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
-#use ApacheSolrForTypo3\Solr\System\TCA\TCAService;
-#use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-#use ApacheSolrForTypo3\Solr\System\Mvc\Frontend\Controller\OverriddenTypoScriptFrontendController;
-#use TYPO3\CMS\Backend\Utility\BackendUtility;
-#use TYPO3\CMS\Core\TimeTracker\TimeTracker;
-#use TYPO3\CMS\Core\TypoScript\ExtendedTemplateService;
+use Karatbars\KaratbarsTools\Domain\Site\SiteRepository;
+use Karatbars\KaratbarsTools\System\Cache\TwoLevelCache;
+use Karatbars\KaratbarsTools\System\Configuration\ConfigurationManager;
+use Karatbars\KaratbarsTools\System\Configuration\ConfigurationPageResolver;
+use Karatbars\KaratbarsTools\System\Configuration\ExtensionConfiguration;
+use Karatbars\KaratbarsTools\System\Configuration\TypoScriptConfiguration;
+use Karatbars\KaratbarsTools\System\TCA\TCAService;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use Karatbars\KaratbarsTools\System\Mvc\Frontend\Controller\OverriddenTypoScriptFrontendController;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\TypoScript\ExtendedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-#use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-#use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
- * Utility class for tx_karatbarstools
+ * Utility class for tx_karatbars_tools
  *
- * @author Ingo Renner <ingo@typo3.org>
+ * @author Oliver Kurzer <oliver.kurzer@karatbars.com>
  */
 class Util
 {
@@ -95,17 +95,15 @@ class Util
     }
 
     /**
-     * Shortcut to retrieve the TypoScript configuration for EXT:karatbarstools
-     * (plugin.tx_karatbarstools) from TSFE.
+     * Shortcut to retrieve the TypoScript configuration for EXT:karatbars_tools
+     * (plugin.tx_karatbars_tools) from TSFE.
      *
      * @return TypoScriptConfiguration
      */
     public static function getKaratbarsToolsConfiguration()
     {
-
-        echo "<br>" . __FILE__ . " @line " . __LINE__;
-        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-        return $configurationManager->getTypoScriptConfiguration();
+         $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+         return $configurationManager->getTypoScriptConfiguration();
     }
 
     /**
@@ -154,7 +152,7 @@ class Util
 
         if ($useTwoLevelCache) {
             /** @var $cache TwoLevelCache */
-            $cache = GeneralUtility::makeInstance(TwoLevelCache::class, /** @scrutinizer ignore-type */ 'tx_karatbarstools_configuration');
+            $cache = GeneralUtility::makeInstance(TwoLevelCache::class, /** @scrutinizer ignore-type */ 'tx_karatbars_tools_configuration');
             $configurationArray = $cache->get($cacheId);
         }
 
@@ -271,7 +269,7 @@ class Util
                 $GLOBALS['TSFE']->tmpl->rootLine = $rootLine;
                 $GLOBALS['TSFE']->sys_page = $pageSelect;
                 $GLOBALS['TSFE']->id = $pageId;
-                $GLOBALS['TSFE']->tx_karatbarstools_initTsfe = 1;
+                $GLOBALS['TSFE']->tx_karatbars_tools_initTsfe = 1;
                 $initializedTsfe = true;
             }
 
