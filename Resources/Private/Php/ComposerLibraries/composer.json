@@ -5,5 +5,8 @@
     },
     "classmap-authoritative": true,
     "prepend-autoloader": false
+  },
+  "require": {
+    "solarium/solarium": "~4.2.0"
   }
 }

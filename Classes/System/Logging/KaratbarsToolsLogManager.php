@@ -24,7 +24,6 @@ namespace Karatbars\KaratbarsTools\System\Logging;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Karatbars\KaratbarsTools\Util;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -91,10 +90,20 @@ class KaratbarsToolsLogManager
      */
     public function log($level, $message, array $data = [])
     {
-
-        echo "LLLLLLLLLLLLOOOOOOOOOOOOOOOOOOGGGGGGGGGGGGGGGGGGGGGG";
-
         $this->getLogger()->log($level, $message, $data);
         $this->debugWriter->write($level, $message, $data);
     }
+
+    /**
+     * Shortcut to log an ERROR record.
+     *
+     * @param string $message Log message.
+     * @param array $data Additional data to log
+     * @return \TYPO3\CMS\Core\Log\Logger $this
+     */
+    public function error($message, array $data = [])
+    {
+        return $this->getLogger()->log(LogLevel::ERROR, $message, $data);
+    }
+
 }

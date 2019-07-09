@@ -1,0 +1,39 @@
+plugin.tx_karatbars_tools {
+	enabled = {$plugin.tx_karatbars_tools.enabled}
+	enableDebugMode = {$plugin.tx_karatbars_tools.enableDebugMode}
+	general {
+		dateFormat.date = d.m.Y H:i
+	}
+	logging {
+		exceptions = {$plugin.tx_karatbars_tools.logging.exceptions}
+		debugOutput = {$plugin.tx_karatbars_tools.logging.debugOutput}
+	}
+    outFiles {
+        1 {
+            name = Name
+            fileName = PhoneEmailList.byName.csv
+            sorting {
+                1 = Name
+                2 = First Name
+            }
+        }
+        2 {
+            name = Department
+            fileName = PhoneEmailList.byDepartment.csv
+            sorting {
+                1 = Department
+                2 = Area
+                3 = Position
+            }
+        }
+        3 {
+            name = Position
+            fileName = PhoneEmailList.byPosition.csv
+            sorting {
+                1 = Position
+                2 = Department
+                3 = Area
+            }
+        }
+    }
+}

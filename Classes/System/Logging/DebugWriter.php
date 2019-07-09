@@ -38,9 +38,8 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  */
 class DebugWriter
 {
-
     /**
-     * When the feature is enabled with: plugin.tx_karatbarstools.logging.debugOutput the log writer uses the extbase
+     * When the feature is enabled with: plugin.tx_karatbars_tools.logging.debugOutput the log writer uses the extbase
      * debug functionality in the frontend, or the console in the backend to display the devlog messages.
      *
      * @param int|string $level Log level. Value according to \TYPO3\CMS\Core\Log\LogLevel. Alternatively accepts a string.
@@ -49,18 +48,16 @@ class DebugWriter
      */
     public function write($level, $message, $data = [])
     {
-        echo "<br>TICK: " . __LINE__;
         $debugAllowedForIp = $this->getIsAllowedByDevIPMask();
         if (!$debugAllowedForIp) {
             return;
         }
-        echo "<br>TICK: " . __LINE__;
+
         $isDebugOutputEnabled = $this->getIsDebugOutputEnabled();
-        echo "<br>\$isDebugOutputEnabled: " . var_export($isDebugOutputEnabled,1);
         if (!$isDebugOutputEnabled) {
             return;
         }
-        echo "<br>TICK: " . __LINE__;
+
         $this->writeDebugMessage($level, $message, $data);
     }
 
@@ -89,12 +86,11 @@ class DebugWriter
      */
     protected function writeDebugMessage($level, $message, $data)
     {
-        $parameters = ['extKey' => 'KaratbarsTools', 'msg' => $message, 'level' => $level, 'data' => $data];
+        $parameters = ['extKey' => 'karatbars_tools', 'msg' => $message, 'level' => $level, 'data' => $data];
         $message = isset($parameters['msg']) ? $parameters['msg'] : '';
         if (TYPO3_MODE === 'BE') {
-            DebugUtility::debug($parameters, $parameters['extKey'], 'DevLog ext:karatbarstools: ' . $message);
+            DebugUtility::debug($parameters, $parameters['extKey'], 'DevLog ext:karatbars_tools: ' . $message);
         } else {
-            echo $message . ':<br/>';
             DebuggerUtility::var_dump($parameters);
         }
     }

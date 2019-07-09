@@ -24,18 +24,18 @@ namespace Karatbars\KaratbarsTools\Task;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-#use ApacheSolrForTypo3\Solr\Domain\Index\IndexService;
-#use ApacheSolrForTypo3\Solr\Domain\Site\Site;
-#use ApacheSolrForTypo3\Solr\System\Environment\CliEnvironment;
+#use Karatbars\KaratbarsTools\Domain\Index\IndexService;
+#use Karatbars\KaratbarsTools\Domain\Site\Site;
+#use Karatbars\KaratbarsTools\System\Environment\CliEnvironment;
 use Karatbars\KaratbarsTools\System\Logging\KaratbarsToolsLogManager;
-use TYPO3\CMS\Core\Resource\FileInterface;
+use Karatbars\KaratbarsTools\Util;
+#use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Resource\Filter\FileExtensionFilter;
 #use TYPO3\CMS\Core\Utility\File;
 use TYPO3\CMS\Scheduler\ProgressProviderInterface;
-
 
 /**
  * A worker indexing the items in the index queue. Needs to be set up as one
@@ -46,27 +46,30 @@ use TYPO3\CMS\Scheduler\ProgressProviderInterface;
 class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressProviderInterface
 {
     /**
-     *
+     * Fileadmin Source Location(Folder) for the CSV file underlying all phone lists
+     * Attention: Use leading and trailing slash
      */
-    const KBT_PEL_REGEX_IN_FOLDER = '/Departments/Human_Resource/Phone_Email_List/';
+    const KBT_PEL_REGEX_IN_FOLDER = DIRECTORY_SEPARATOR . 'Departments' . DIRECTORY_SEPARATOR . 'Human_Resource' . DIRECTORY_SEPARATOR . 'Phone_Email_List' . DIRECTORY_SEPARATOR;
 
     /**
-     * 
+     * Fileadmin Target Location(Folder) for the CSV file rendered by this task based on KBT_PEL_REGEX_IN_FOLDER . KBT_PEL_REGEX_IN_FILE
+     * Attention: Use leading and trailing slash
      */
-    const KBT_PEL_REGEX_OUT_FOLDER = '/Main/Phone_Email_List/';
+    const KBT_PEL_REGEX_OUT_FOLDER = DIRECTORY_SEPARATOR . 'Main' . DIRECTORY_SEPARATOR . 'Phone_Email_List' . DIRECTORY_SEPARATOR;
 
     /**
-     *
+     * Fileadmin Source Location(Filename) for the CSV file underlying all phone lists
+     * Attention: define regex here that this task is able to find and verify the file by regex name
      */
     const KBT_PEL_REGEX_IN_FILE = '^PhoneEmailList\.in\.csv$';
 
     /**
-     *
+     * CSV Data delimiter for the CSV file underlying all phone lists and the rendered CVS files
      */
     const KBT_PEL_CSV_DELIMITER = ';';
 
     /**
-     *
+     * CSV Data enclosure for the CSV file underlying all phone lists and the rendered CVS files
      */
     const KBT_PEL_CSV_ENCLOSURE = '"';
 
@@ -76,23 +79,19 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     protected $logger = null;
 
     /**
-     * @var
+     * @var \TYPO3\CMS\Core\Resource\Folder
      */
     protected $inFolder;
 
     /**
-     * @var
+     * @var \TYPO3\CMS\Core\Resource\Folder
      */
     protected $outFolder;
-    /**
-     * @var
-     */
-    protected $inFile;
 
     /**
-     * @var array
+     * @var \TYPO3\CMS\Core\Resource\File
      */
-    protected $outFileHeader = array("", "Name", "First Name", "Phone(s)", "E-Mail(s)", "Bemerkung" );
+    protected $inFile;
 
     /**
      * @var int
@@ -125,35 +124,28 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     protected $conf_outFiles = [];
 
     /**
-     * @var
+     * @var array
      */
     protected $currentOutConf;
 
-    /**
-     * @var
-     */
-    protected $sortableKey;
-
+     private function initLogger(){
+        $this->logger = GeneralUtility::makeInstance(KaratbarsToolsLogManager::class, /** @scrutinizer ignore-type */ __CLASS__);
+    }
     /**
      * @param bool|string $type
      * @return array|mixed
      */
     private function getConfOutFiles( $type = false )
     {
-        $this->conf_outFiles = [
-            "Name" => [
-                "fileName" => "PhoneEmailList.byName.csv",
-                "sorting" => [ 'Name', 'First Name' ],
-            ],
-            "Department" => [
-                "fileName" => "PhoneEmailList.byDepartment.csv",
-                "sorting" => [ 'Department', 'Area', 'Position' ],
-            ],
-            "Position" => [
-                "fileName" => "PhoneEmailList.byPosition.csv",
-                "sorting" => [ 'Position', 'Department', 'Area' ],
-            ],
-        ];
+        $conf = Util::getKaratbarsToolsConfiguration()->getOutFilesConfig();
+
+        foreach( $conf as $key => $value ){
+            $this->conf_outFiles[$value['name']] = [
+                'fileName' => $value['fileName'],
+                'sorting' => $value['sorting.']
+            ];
+        }
+
         $returnValue = $this->conf_outFiles;
 
         if( $type !== false && isset($this->conf_outFiles[$type]) ){
@@ -162,32 +154,25 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         return $returnValue;
     }
 
-
-
     /**
      * @return bool Returns TRUE on success.
      * @throws \Exception
      */
     public function execute()
     {
-
-        $this->logger = GeneralUtility::makeInstance(KaratbarsToolsLogManager::class, /** @scrutinizer ignore-type */ __CLASS__);
-
-        echo "XXXX" . var_export( $this->logger, 1);
-
+        $this->initLogger();
         $this->logger->log(
-            KaratbarsToolsLogManager::ERROR,
-            "Message",
-            array(1,2,3,4,5,6)
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['function'=>__FUNCTION__, 'line'=>__LINE__]
         );
 
-        exit();
         $returnValue = false;
-        $this->loggit( "START... ", ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        $returnValueOutFiles = [];
+
         if ( $this->setInFolder() && $this->setInFile() && $this->setOutFolder() ){
             $this->setPhoneEmailListEntries( $this->csvToArray() );
-            
-            $returnValueOutFiles = [];
+
             foreach( $this->getConfOutFiles() as $type => $outConf ){
                 $this->setCurrentOutConf( $outConf );
                 if ( $this->beautifyData() === true ) {
@@ -201,10 +186,55 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
             $returnValue = true;
         }
 
-        $this->loggit( "RETURN VALUE: " . var_export($returnValue,1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['returnValue'=> $returnValue, 'function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
 
-        #$this->loggit( "ALL=" . var_export($this->getPhoneEmailListEntries(), 1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-        $this->loggit( " ...STOP (" . var_export($returnValue, 1) . ")", ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        return $returnValue;
+    }
+
+    /**
+     * Gets the indexing progress.
+     *
+     * @return float Indexing progress as a two decimal precision float. f.e. 44.87
+     * @throws \Exception
+     */
+    public function getProgress()
+    {
+        $this->initLogger();
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
+
+        $finished = 0;
+        $returnValue = 0.00;
+
+        if ( $this->setInFolder() && $this->setInFile() && $this->setOutFolder() ){
+            $this->setPhoneEmailListEntries($this->csvToArray());
+            $returnValue = true;
+            $count = intval( count($this->getPhoneEmailListEntries('in')) );
+
+            $i = 0;
+            foreach( $this->getConfOutFiles() as $type => $outConf ){
+                ++$i;
+                $fullPathOutFileName = PATH_site . $this->getOutFolder()->getPublicUrl() . $outConf['fileName'];
+                $finished+= intval(exec("wc -l '$fullPathOutFileName'"));
+            }
+
+            if ( $count > 0 ){
+                $returnValue = ( 100 / ($count * $i) ) * $finished;
+            }
+        }
+
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['returnValue'=> $returnValue, 'inCount'=> ($count * $i), 'outCount'=> $finished, 'function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
 
         return $returnValue;
     }
@@ -225,15 +255,28 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
                     'E-Mail' => $this->renderDataEmail($lineDataIn),
                     'Comment' => $this->renderDataComment($lineDataIn)
                 ];
-                $this->addPhoneEmailListLine($lineDataOut, $type = "out" );
-                $this->setPhoneEmailListFinishedCount( $this->getPhoneEmailListFinishedCount() + 1 );
-                $returnValue = true;
-            } catch (Exception $e ){
-                $this->loggit( $e->getMessage(), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+
+                if( $lineDataOut['E-Mail'] !== false ){
+                    $this->addPhoneEmailListLine($lineDataOut, $type = "out" );
+                    $this->setPhoneEmailListFinishedCount( $this->getPhoneEmailListFinishedCount() + 1 );
+                    $returnValue = true;
+                }
+
+            } catch ( \Exception $e ){
+                $this->logger->log(
+                    KaratbarsToolsLogManager::ERROR,
+                    __FUNCTION__,
+                    ['message'=>$e->getMessage(), 'function'=>__FUNCTION__, 'line'=>__LINE__]
+                );
                 $returnValue = false;
             }
         }
-        $this->loggit( var_export($returnValue, 1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['returnValue'=> $returnValue, 'function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
         return $returnValue;
     }
 
@@ -249,17 +292,14 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         $csvOutFileBak = PATH_site . $this->getInFolder()->getPublicUrl() . uniqid('.',true) . "." . basename( $csvOutFile );
 
         if( file_exists( $csvOutFile )  ){
-            #$this->loggit( "FOUND: Backup " . $csvOutFile . " to " . $csvOutFileBak, ['function'=>__FUNCTION__, 'line'=>__LINE__] );
             copy( $csvOutFile, $csvOutFileBak );
         }
 
-        $this->loggit( "WORK ON " . $csvOutFile, ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-
         try {
             $fp = fopen($csvOutFile , 'w');
-            #fputcsv($fp, array("", "Name", "First Name", "Phone(s)", "E-Mail(s)", "Bemerkung" ), $this::KBT_PEL_CSV_DELIMITER, $this::KBT_PEL_CSV_ENCLOSURE);
             $tmpAr = $this->getPhoneEmailListEntries( "out" );
             ksort ($tmpAr );
+
             foreach ( $tmpAr as $key => $entry ) {
                 if (
                     !(
@@ -269,18 +309,27 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
                         !$entry['Phone'] &&
                         !$entry['E-Mail'] &&
                         !$entry['Comment']
-                    ) &&
-                    fputcsv($fp, $entry, $this::KBT_PEL_CSV_DELIMITER, $this::KBT_PEL_CSV_ENCLOSURE)
+                    )
                 ) {
+                    fputcsv(
+                        $fp,
+                        $this->sortData( $entry ),
+                        $this::KBT_PEL_CSV_DELIMITER,
+                        $this::KBT_PEL_CSV_ENCLOSURE
+                    );
+
                     $success = true;
                 }
             }
             fclose($fp);
-        } catch (Exception $e ){
-            $this->loggit( " ((" . var_export( $fp, 1 ) . ")) " . $e->getMessage(), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        } catch ( \Exception $e ){
+            $this->logger->log(
+                KaratbarsToolsLogManager::ERROR,
+                __FUNCTION__,
+                ['message'=> $e->getMessage(), 'function'=>__FUNCTION__, 'line'=>__LINE__]
+            );
         }
 
-        $this->loggit( "\$success: " . var_export($success, 1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
         if( $success ){
             $returnValue = true;
             if( file_exists($csvOutFileBak) ){
@@ -294,7 +343,11 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
             }
         }
 
-        #$this->loggit( var_export($returnValue, 1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['returnValue'=> $returnValue, 'csvOutFile'=> $csvOutFile, 'function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
         return $returnValue;
     }
 
@@ -303,16 +356,16 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
      */
     private function csvToArray()
     {
-        $filename = PATH_site . $this->getInFolder()->getPublicUrl() . $this->getInFile()->getName();
-        $this->loggit( $filename, ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        $header = NULL;
+        $returnValue = array();
 
-        if( !file_exists($filename) || !is_readable($filename) ){
+        $csvInFile = PATH_site . $this->getInFolder()->getPublicUrl() . $this->getInFile()->getName();
+
+        if( !file_exists($csvInFile) || !is_readable($csvInFile) ){
             return false;
         }
 
-        $header = NULL;
-        $data = array();
-        if (($handle = fopen($filename, 'r')) !== false)
+        if (($handle = fopen($csvInFile, 'r')) !== false)
         {
             while (($row = fgetcsv($handle, 1000, $this::KBT_PEL_CSV_DELIMITER)) !== false)
             {
@@ -320,12 +373,33 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
                     $header = $row;
 
                 else
-                    $data[] = array_combine($header, $row);
+                    $returnValue[] = array_combine($header, $row);
             }
             fclose($handle);
         }
-        $this->setPhoneEmailListCount( count($data) );
-        return $data;
+        $this->setPhoneEmailListCount( count($returnValue) );
+
+        $this->logger->log(
+            KaratbarsToolsLogManager::INFO,
+            __FUNCTION__,
+            ['returnValue'=> $returnValue, 'csvInFile'=> $csvInFile, 'function'=>__FUNCTION__, 'line'=>__LINE__]
+        );
+
+        return $returnValue;
+    }
+
+    /**
+     * @param $haystack
+     * @return array
+     */
+    private function sortData( $haystack ){
+        $sortedArTmp = array_replace(array_flip($this->getCurrentOutConf()['sorting']), $haystack);
+        // determine not required keys
+        foreach( $sortedArTmp as $tmpKey => $tmpValue ){
+            if( !array_key_exists($tmpKey, $haystack)) unset($sortedArTmp[$tmpKey]);
+        }
+
+        return $sortedArTmp;
     }
 
     /**
@@ -334,10 +408,11 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
      */
     private function renderDataDepartment( $data ){
         $arTmp = [];
-        if (isset($data['Department']) && $data['Department'] ) $arTmp[] = str_replace( "\n", ",", $data['Department']);
-        if (isset($data['Area']) && $data['Area'] ) $arTmp[] = str_replace( "\n", ",", $data['Area']);;
-        if (isset($data['Position']) && $data['Position'] ) $arTmp[] = str_replace( "\n", ",", $data['Position']);
-        return implode(",", $arTmp );
+        if (isset($data['Department']) && $data['Department'] ) $arTmp['Department'] = str_replace( "\n", ",", $data['Department']);
+        if (isset($data['Area']) && $data['Area'] ) $arTmp['Area'] = str_replace( "\n", ",", $data['Area']);;
+        if (isset($data['Position']) && $data['Position'] ) $arTmp['Position'] = str_replace( "\n", ",", $data['Position']);
+
+        return implode(", ", $this->sortData( $arTmp ) );
     }
 
     /**
@@ -410,27 +485,28 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         $arTmp = [];
 
         $data['E-Mail'] = str_replace( "\n", ",", $data['E-Mail']);
+        $data['E-Mail'] = strtolower( str_replace( " ", "", $data['E-Mail']) );
         foreach( explode(",", $data['E-Mail']) as $eMail ){
-            if( GeneralUtility::validEmail(trim($eMail)) ){
+            if( trim($eMail) != "" && GeneralUtility::validEmail(trim($eMail)) ){
                 $arTmp[] = trim($eMail);
             }
         }
 
         $data['E-Mail-Collection'] = str_replace( "\n", ",", $data['E-Mail-Collection']);
+        $data['E-Mail-Collection'] = strtolower( str_replace( " ", "", $data['E-Mail-Collection']) );
         foreach( explode(",", $data['E-Mail-Collection']) as $eMail ){
-            if( GeneralUtility::validEmail(trim($eMail)) ){
+            if( trim($eMail) != "" && GeneralUtility::validEmail(trim($eMail)) ){
                 $arTmp[] = trim($eMail);
             }
         }
 
-        return implode(", ", $arTmp );
+        return count($arTmp) > 0 ? implode(", ", $arTmp ) : false;
     }
 
     /**
      * @param Folder $folder
-     * @param string $extensionList
-     *
-     * @return FileInterface[]|Folder[]
+     * @param $extensionList
+     * @return \TYPO3\CMS\Core\Resource\File[]
      */
     protected function getFolderContent(Folder $folder, $extensionList)
     {
@@ -458,74 +534,6 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     {
         $this->phoneEmailListFile = $limit;
     }
-
-    /**
-     * Gets the indexing progress.
-     *
-     * @return float Indexing progress as a two decimal precision float. f.e. 44.87
-     * @throws \Exception
-     */
-    public function getProgress()
-    {
-        $count = 20;
-        $finished = 12;
-        $returnValue = 0.00;
-
-        //ToDo: use the config instead here... see also the execute function, see below...
-        return 10.00;
-
-        $this->loggit( "START PROGRESS... ", ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-        if ( $this->setInFolder() && $this->setInFile() ) {
-            $this->setPhoneEmailListEntries($this->csvToArray());
-            $returnValue = true;
-
-            //ToDo: use the config instead here... see also the execute function
-            $fullPathOutFileName = PATH_site . $this->getOutFolder()->getPublicUrl() . "PhoneEmailList.csv";
-
-            $count = count($this->getPhoneEmailListEntries('in'));
-            $finished = intval(exec("wc -l '$fullPathOutFileName'"));
-
-            $this->loggit("IN COUNT: " . $count, ['function' => __FUNCTION__, 'line' => __LINE__]);
-            $this->loggit("OUT COUNT: " . $finished, ['function' => __FUNCTION__, 'line' => __LINE__]);
-
-            if ( $count > 0 ){
-                $returnValue = ( 100 / $count ) * $finished;
-            }
-
-        }
-
-        return $returnValue;
-    }
-
-    /**
-     * @param string $type
-     * @param bool $key
-     * @return bool|mixed
-     */
-    private function getPhoneEmailListEntry( $type = "in", $key = false )
-    {
-        $returnValue = false;
-        if( $type && array_key_exists( $type, $this->phoneEmailListEntries ) && array_key_exists( $key, $this->phoneEmailListEntries[$type] ) ){
-            $returnValue = $this->phoneEmailListEntries[$type]['key'];
-        }
-        return $returnValue;
-    }
-
-    /**
-     * @param $entry
-     * @param string $type
-     * @param bool $key
-     * @return bool
-     */
-    private function setPhoneEmailListEntry($entry, $type = "in", $key = false )
-    {
-        $returnValue = false;
-        if( $type && array_key_exists( $type, $this->phoneEmailListEntries ) && array_key_exists( $key, $this->phoneEmailListEntries[$type] ) ){
-            $this->phoneEmailListEntries[$type]['key'] = $entry;
-        }
-        return $returnValue;
-    }
-
 
     /**
      * @return array
@@ -564,16 +572,10 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     private function addPhoneEmailListLine($phoneEmailListLine, $type = "in" )
     {
         $sortingKey = $this->getUniqueIterator();
+
         foreach ( $this->getCurrentOutConf()['sorting'] as $sortKey ){
             $sortingKey = strtolower( $phoneEmailListLine[$sortKey] . "-" . $sortingKey );
         }
-        #echo "<br>" . $sortingKey;
-        #exit();
-        #$this->loggit( "ADDDDD: " . $sortableKey, ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-        #$this->loggit( "SORT: " . var_export($this->getConfOutFiles(),1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-        #$this->loggit( "SORT: " . var_export($this->getSortableKey(),1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
-        #exit();
-
 
         $this->phoneEmailListEntries[$type][$sortingKey] = $phoneEmailListLine;
         ksort($this->phoneEmailListEntries[$type]);
@@ -620,8 +622,7 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     }
 
     /**
-     * @return $this|bool
-     * @throws \Exception
+     * @return bool
      */
     public function setInFolder()
     {
@@ -631,10 +632,14 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
             $defaultStorage = $resourceFactory->getDefaultStorage();
             $this->inFolder = $defaultStorage->getFolder($this::KBT_PEL_REGEX_IN_FOLDER);
             $returnValue = true;
-        } catch (Exception $e ) {
-            $this->loggit( $e->getMessage(), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        } catch ( \Exception $e ) {
+            $this->logger->log(
+                KaratbarsToolsLogManager::ERROR,
+                __FUNCTION__,
+                ['message'=> $e->getMessage(), 'function'=>__FUNCTION__, 'line'=>__LINE__]
+            );
         }
-        $this->loggit( var_export($returnValue,1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+
         return $returnValue;
     }
 
@@ -645,9 +650,9 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     {
         return $this->outFolder;
     }
+
     /**
-     * @return $this|bool
-     * @throws \Exception
+     * @return bool
      */
     public function setOutFolder()
     {
@@ -657,10 +662,14 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
             $defaultStorage = $resourceFactory->getDefaultStorage();
             $this->outFolder = $defaultStorage->getFolder($this::KBT_PEL_REGEX_OUT_FOLDER);
             $returnValue = true;
-        } catch (Exception $e ) {
-            $this->loggit( $e->getMessage(), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        } catch ( \Exception $e ) {
+            $this->logger->log(
+                KaratbarsToolsLogManager::ERROR,
+                __FUNCTION__,
+                ['message'=> $e->getMessage(), 'function'=>__FUNCTION__, 'line'=>__LINE__]
+            );
         }
-        $this->loggit( var_export($returnValue,1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+
         return $returnValue;
     }
 
@@ -673,7 +682,7 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     }
 
     /**
-     * @return $this|bool
+     * @return bool
      */
     public function setInFile()
     {
@@ -682,8 +691,12 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         try {
             $files = $this->getFolderContent( $this->getInFolder(), "csv" );
             $returnValue = true;
-        } catch (Exception $e ) {
-            $this->loggit( $e->getMessage(), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
+        } catch ( \Exception $e ) {
+            $this->logger->log(
+                KaratbarsToolsLogManager::ERROR,
+                __FUNCTION__,
+                ['message'=> $e->getMessage(), 'function'=>__FUNCTION__, 'line'=>__LINE__]
+            );
         }
 
         foreach( $files as $key => $file ){
@@ -695,7 +708,6 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
             }
         }
 
-        $this->loggit( var_export($returnValue,1), ['function'=>__FUNCTION__, 'line'=>__LINE__] );
         return $returnValue;
     }
 
@@ -714,38 +726,6 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
     public function resetUniqueIterator()
     {
         $this->uniqueIterator = 0;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOutFileHeader()
-    {
-        return $this->outFileHeader;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSortableKey()
-    {
-        return $this->sortableKey;
-    }
-
-    /**
-     * @param mixed $sortableKey
-     */
-    public function setSortableKey($sortableKey)
-    {
-        $this->sortableKey = $sortableKey;
-    }
-
-    /**
-     * @param mixed $sortableKey
-     */
-    public function setSortableKeyByConf( $conf )
-    {
-
     }
 
     /**
@@ -769,17 +749,10 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         $this->currentOutConf = $currentOutConf;
     }
 
-
-
-
-
-
-
-
-
-
-
     /**
+     * Use this function for further debugging only
+     * The messages are logged into /tmp/<% date( "Ymd" ) %>.log
+     *
      * @param string $message
      * @param array $info keys are "file", "line", "function"
      * @return bool
@@ -791,7 +764,7 @@ class PhoneEmailListTask extends AbstractKaratbarsToolsTask implements ProgressP
         $text.= isset($info['function']) ? "(function  " . $info['function'] . "): " : "";
         $text.= " " . $message;
 
-        if ( $fp = fopen('/tmp/data.txt', 'a+') ){
+        if ( $fp = fopen('/tmp/' . date( "Ymd" ) . '.log', 'a+') ){
             fwrite($fp, date( "Y-m-d H:i:s" ) . ": " . $text . "\n" );
             fclose($fp);
             return true;

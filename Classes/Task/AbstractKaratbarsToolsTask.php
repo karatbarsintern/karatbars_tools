@@ -24,10 +24,10 @@ namespace Karatbars\KaratbarsTools\Task;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-#use ApacheSolrForTypo3\Solr\Domain\Site\SiteRepository;
-#use ApacheSolrForTypo3\Solr\Domain\Site\Site;
-use KaratbarsTools\System\Logging\KaratbarsToolsLogManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Karatbars\KaratbarsTools\Domain\Site\SiteRepository;
+use Karatbars\KaratbarsTools\Domain\Site\Site;
+#use Karatbars\KaratbarsTools\System\Logging\KaratbarsToolsLogManager;
+#use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
